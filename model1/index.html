@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Cosmetics QC Line Simulator</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 3D Scene Container -->
+        <div class="scene-container">
+            <canvas id="three-canvas"></canvas>
+            <div class="scene-controls">
+                <button class="btn btn--sm btn--secondary" id="pauseBtn">⏸️ Pause</button>
+                <button class="btn btn--sm btn--secondary" id="resetViewBtn">🎯 Reset View</button>
+                <div class="scene-info">
+                    <span id="fpsCounter">FPS: --</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- HMI Dashboard -->
+        <div class="hmi-container">
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <h2>QC Line Status</h2>
+                <div class="status-grid">
+                    <div class="status-item">
+                        <span class="status-label">Total Items</span>
+                        <span class="status-value" id="totalItems">0</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">OK Rate</span>
+                        <span class="status-value" id="okRate">0%</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Active Alarms</span>
+                        <span class="status-value" id="activeAlarms">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Belt Controls -->
+            <div class="panel belt-controls">
+                <div class="panel-header">
+                    <h3>Belt Controls</h3>
+                    <button class="btn btn--sm btn--secondary" id="emergencyStop">🚨 E-Stop</button>
+                </div>
+                <div class="belt-control-grid">
+                    <div class="belt-control" data-belt="B1">
+                        <div class="belt-header">
+                            <h4>Belt 1 (64mm)</h4>
+                            <div class="belt-status">
+                                <div class="status-light" id="light-B1"></div>
+                                <button class="btn btn--sm btn--primary belt-toggle" data-belt="B1">▶️ Start</button>
+                            </div>
+                        </div>
+                        <div class="belt-controls-row">
+                            <label>Speed: <span id="speed-B1">0.3</span> m/s</label>
+                            <input type="range" class="speed-slider" data-belt="B1" min="0.1" max="0.5" step="0.05" value="0.3">
+                        </div>
+                        <div class="belt-controls-row">
+                            <label>Product:</label>
+                            <select class="form-control profile-select" data-belt="B1">
+                                <option value="Brush-64">Brush-64</option>
+                                <option value="Brush-95">Brush-95</option>
+                                <option value="Brush-121">Brush-121</option>
+                            </select>
+                        </div>
+                        <div class="belt-counters">
+                            <div class="counter ok">OK: <span id="ok-B1">0</span></div>
+                            <div class="counter red">Red: <span id="red-B1">0</span></div>
+                            <div class="counter green">Green: <span id="green-B1">0</span></div>
+                            <div class="counter yellow">Yellow: <span id="yellow-B1">0</span></div>
+                        </div>
+                    </div>
+
+                    <div class="belt-control" data-belt="B2">
+                        <div class="belt-header">
+                            <h4>Belt 2 (95mm)</h4>
+                            <div class="belt-status">
+                                <div class="status-light" id="light-B2"></div>
+                                <button class="btn btn--sm btn--primary belt-toggle" data-belt="B2">▶️ Start</button>
+                            </div>
+                        </div>
+                        <div class="belt-controls-row">
+                            <label>Speed: <span id="speed-B2">0.25</span> m/s</label>
+                            <input type="range" class="speed-slider" data-belt="B2" min="0.1" max="0.5" step="0.05" value="0.25">
+                        </div>
+                        <div class="belt-controls-row">
+                            <label>Product:</label>
+                            <select class="form-control profile-select" data-belt="B2">
+                                <option value="Brush-64">Brush-64</option>
+                                <option value="Brush-95" selected>Brush-95</option>
+                                <option value="Brush-121">Brush-121</option>
+                            </select>
+                        </div>
+                        <div class="belt-counters">
+                            <div class="counter ok">OK: <span id="ok-B2">0</span></div>
+                            <div class="counter red">Red: <span id="red-B2">0</span></div>
+                            <div class="counter green">Green: <span id="green-B2">0</span></div>
+                            <div class="counter yellow">Yellow: <span id="yellow-B2">0</span></div>
+                        </div>
+                    </div>
+
+                    <div class="belt-control" data-belt="B3">
+                        <div class="belt-header">
+                            <h4>Belt 3 (121mm)</h4>
+                            <div class="belt-status">
+                                <div class="status-light" id="light-B3"></div>
+                                <button class="btn btn--sm btn--primary belt-toggle" data-belt="B3">▶️ Start</button>
+                            </div>
+                        </div>
+                        <div class="belt-controls-row">
+                            <label>Speed: <span id="speed-B3">0.35</span> m/s</label>
+                            <input type="range" class="speed-slider" data-belt="B3" min="0.1" max="0.5" step="0.05" value="0.35">
+                        </div>
+                        <div class="belt-controls-row">
+                            <label>Product:</label>
+                            <select class="form-control profile-select" data-belt="B3">
+                                <option value="Brush-64">Brush-64</option>
+                                <option value="Brush-95">Brush-95</option>
+                                <option value="Brush-121" selected>Brush-121</option>
+                            </select>
+                        </div>
+                        <div class="belt-counters">
+                            <div class="counter ok">OK: <span id="ok-B3">0</span></div>
+                            <div class="counter red">Red: <span id="red-B3">0</span></div>
+                            <div class="counter green">Green: <span id="green-B3">0</span></div>
+                            <div class="counter yellow">Yellow: <span id="yellow-B3">0</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Trends -->
+            <div class="panel trends-panel">
+                <div class="panel-header">
+                    <h3>Live Trends</h3>
+                    <button class="btn btn--sm btn--secondary" id="exportCsv">📊 Export CSV</button>
+                </div>
+                <div class="chart-container" style="position: relative; height: 200px;">
+                    <canvas id="trendsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Demo Scenarios -->
+            <div class="panel scenarios-panel">
+                <div class="panel-header">
+                    <h3>Demo Scenarios</h3>
+                    <div class="sound-control">
+                        <label>
+                            <input type="checkbox" id="soundToggle" checked>
+                            🔊 Sound
+                        </label>
+                    </div>
+                </div>
+                <div class="scenario-buttons">
+                    <button class="btn btn--sm btn--outline scenario-btn" id="spikeHeight">⚡ Spike Over-Height</button>
+                    <button class="btn btn--sm btn--outline scenario-btn" id="softnessDrift">📈 Softness Drift</button>
+                    <button class="btn btn--sm btn--outline scenario-btn" id="wrongProduct">❌ Wrong Product</button>
+                    <button class="btn btn--sm btn--outline scenario-btn" id="resetScenarios">🔄 Reset All</button>
+                </div>
+            </div>
+
+            <!-- Alarms Panel -->
+            <div class="panel alarms-panel">
+                <div class="panel-header">
+                    <h3>Active Alarms</h3>
+                    <button class="btn btn--sm btn--secondary" id="clearAlarms">🗑️ Clear</button>
+                </div>
+                <div class="alarms-list" id="alarmsList">
+                    <div class="no-alarms">No active alarms</div>
+                </div>
+            </div>
+
+            <!-- Configuration Panel -->
+            <div class="panel config-panel">
+                <div class="panel-header">
+                    <h3>Configuration</h3>
+                    <button class="btn btn--sm btn--secondary" id="resetConfig">🔧 Reset Defaults</button>
+                </div>
+                <div class="config-tabs">
+                    <button class="tab-btn active" data-tab="profiles">Product Profiles</button>
+                    <button class="tab-btn" data-tab="sensors">Sensor Settings</button>
+                </div>
+                <div class="config-content">
+                    <div class="tab-content active" id="profiles-tab">
+                        <div class="profile-editor">
+                            <select class="form-control" id="profileSelector">
+                                <option value="Brush-64">Brush-64</option>
+                                <option value="Brush-95">Brush-95</option>
+                                <option value="Brush-121">Brush-121</option>
+                            </select>
+                            <div class="profile-fields">
+                                <label>Diameter (mm): <input type="number" class="form-control" id="profileDiameter" step="1"></label>
+                                <label>Target Height (mm): <input type="number" class="form-control" id="profileHeight" step="0.1"></label>
+                                <label>Height Tolerance (mm): <input type="number" class="form-control" id="profileTolerance" step="0.1"></label>
+                                <label>Softness Min (N): <input type="number" class="form-control" id="profileSoftnessMin" step="0.1"></label>
+                                <label>Softness Max (N): <input type="number" class="form-control" id="profileSoftnessMax" step="0.1"></label>
+                            </div>
+                            <button class="btn btn--sm btn--primary" id="saveProfile">💾 Save Profile</button>
+                        </div>
+                    </div>
+                    <div class="tab-content" id="sensors-tab">
+                        <div class="sensor-settings">
+                            <label>Height Noise σ (mm): <input type="number" class="form-control" id="heightNoise" step="0.01" value="0.2"></label>
+                            <label>Softness Noise σ (N): <input type="number" class="form-control" id="softnessNoise" step="0.01" value="0.1"></label>
+                            <label>Sensor Latency (ms): <input type="number" class="form-control" id="sensorLatency" step="10" value="50"></label>
+                            <button class="btn btn--sm btn--primary" id="saveSensorSettings">💾 Save Settings</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <audio id="buzzerSound" preload="auto" loop>
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXTH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSwFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+LyvmQdBzWH0fLNeSsFJXfH8N2QQAoUXrTp66hVFApGn+Lyvm" type="audio/wav">
+    </audio>
+
+    <script src="app.js"></script>
+</body>
+</html>

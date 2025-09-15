@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linear Step-by-Step Filament Processing Simulator</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+    <div class="simulator-container">
+        <!-- 3D Canvas Container -->
+        <div class="canvas-container">
+            <canvas id="threejs-canvas"></canvas>
+            
+            <!-- Camera Controls -->
+            <div class="camera-controls">
+                <button class="btn btn--sm btn--secondary" data-view="overview">Overview</button>
+                <button class="btn btn--sm btn--secondary" data-view="loading">Loading</button>
+                <button class="btn btn--sm btn--secondary" data-view="wash">Washing</button>
+                <button class="btn btn--sm btn--secondary" data-view="drying">Drying</button>
+                <button class="btn btn--sm btn--secondary" data-view="output">Output</button>
+                <button class="btn btn--sm btn--secondary" data-view="follow">Follow Tray</button>
+            </div>
+
+            <!-- Current Process Status -->
+            <div class="process-status">
+                <div class="status-header">
+                    <h3>Current Process Status</h3>
+                </div>
+                <div class="status-grid">
+                    <div class="status-item">
+                        <span class="status-label">Active Station:</span>
+                        <span id="current-station" class="status status--info">Ready</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Process Step:</span>
+                        <span id="current-step" class="status status--info">Waiting to Start</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Tray Position:</span>
+                        <span id="tray-position" class="status status--info">Loading Zone</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Time in Station:</span>
+                        <span id="station-timer" class="status status--info">00:00</span>
+                    </div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-label">Overall Progress</div>
+                    <div class="progress-bar">
+                        <div id="progress-fill" class="progress-fill"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span id="progress-percentage">0%</span>
+                        <span>Station <span id="station-counter">0</span> of 10</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Station Status Indicators -->
+            <div class="station-indicators">
+                <div class="indicators-header">Production Line Status</div>
+                <div id="stations-grid" class="stations-grid"></div>
+            </div>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <!-- Process Control -->
+            <div class="card">
+                <div class="card__header">
+                    <h3>Process Control</h3>
+                </div>
+                <div class="card__body">
+                    <div class="main-controls">
+                        <button id="start-process" class="btn btn--primary btn--full-width">Start Process</button>
+                        <div class="control-row">
+                            <button id="pause-process" class="btn btn--secondary" disabled>Pause</button>
+                            <button id="stop-process" class="btn btn--outline" disabled>Stop</button>
+                            <button id="reset-process" class="btn btn--outline">Reset</button>
+                        </div>
+                    </div>
+                    
+                    <div class="step-controls">
+                        <div class="step-mode-toggle">
+                            <label class="toggle-item">
+                                <input type="checkbox" id="manual-mode">
+                                <span>Manual Step Mode</span>
+                            </label>
+                        </div>
+                        <div class="step-buttons">
+                            <button id="prev-station" class="btn btn--sm btn--secondary" disabled>← Previous</button>
+                            <button id="next-station" class="btn btn--sm btn--secondary" disabled>Next →</button>
+                        </div>
+                        <button id="complete-station" class="btn btn--sm btn--primary" disabled>Complete Current Station</button>
+                    </div>
+
+                    <div class="speed-control">
+                        <label class="form-label" for="animation-speed">
+                            Animation Speed: <span id="speed-display">1.0x</span>
+                        </label>
+                        <input type="range" id="animation-speed" class="form-control" 
+                               min="0.1" max="3.0" step="0.1" value="1.0">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Station Details -->
+            <div class="card">
+                <div class="card__header">
+                    <h3>Current Station Details</h3>
+                </div>
+                <div class="card__body">
+                    <div id="station-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Station Name:</span>
+                            <span id="detail-station-name">None Selected</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Process Type:</span>
+                            <span id="detail-process-type">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Processing Time:</span>
+                            <span id="detail-process-time">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Status:</span>
+                            <span id="detail-status" class="status status--info">Idle</span>
+                        </div>
+                    </div>
+                    
+                    <div class="station-equipment">
+                        <h4>Equipment Details</h4>
+                        <div id="equipment-list">
+                            <div class="equipment-item">Select a station to view equipment details</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visual Settings -->
+            <div class="card">
+                <div class="card__header">
+                    <h3>Display Options</h3>
+                </div>
+                <div class="card__body">
+                    <div class="visual-toggles">
+                        <label class="toggle-item">
+                            <input type="checkbox" id="show-particles" checked>
+                            <span>Particle Effects</span>
+                        </label>
+                        <label class="toggle-item">
+                            <input type="checkbox" id="show-human-operator" checked>
+                            <span>Human Operator</span>
+                        </label>
+                        <label class="toggle-item">
+                            <input type="checkbox" id="show-safety-equipment" checked>
+                            <span>Safety Equipment</span>
+                        </label>
+                        <label class="toggle-item">
+                            <input type="checkbox" id="show-conveyor-path" checked>
+                            <span>Conveyor Path</span>
+                        </label>
+                        <label class="toggle-item">
+                            <input type="checkbox" id="show-station-labels" checked>
+                            <span>Station Labels</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Process Log -->
+            <div class="card">
+                <div class="card__header">
+                    <h3>Process Events</h3>
+                    <button id="clear-log" class="btn btn--sm btn--outline">Clear</button>
+                </div>
+                <div class="card__body">
+                    <div id="process-log" class="process-log">
+                        <div class="log-entry info">
+                            <span class="log-time">00:00:00</span>
+                            <span class="log-message">System initialized - Linear production line ready</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Station Detail Modal -->
+    <div id="station-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-station-title">Station Details</h3>
+                <button id="close-modal" class="btn btn--sm btn--outline">×</button>
+            </div>
+            <div class="modal-body">
+                <div id="modal-station-content">
+                    <!-- Dynamic content -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <h2>Initializing Linear Production Line</h2>
+            <p>Setting up step-by-step filament processing system</p>
+            <div class="loading-steps">
+                <div>• Creating straight conveyor system</div>
+                <div>• Installing 10 specialized stations</div>
+                <div>• Configuring human operator position</div>
+                <div>• Setting up stop-and-go movement system</div>
+                <div>• Loading 120 bundles per tray</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
