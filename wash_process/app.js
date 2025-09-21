@@ -51,64 +51,94 @@ class LinearFilamentSimulator {
         // Station definitions with distinct equipment
         this.stationData = [
             {
-                id: 1, name: "Loading Station", position: [-50, 0, 0], duration: 10,
+                id: 1,
+                name: "Loading Material",
+                position: [-50, 0, 0],
+                duration: 10,
                 equipment: ["human_operator", "tray_rack", "work_platform", "safety_barriers"],
                 colors: { primary: 0x4CAF50, secondary: 0x8BC34A },
-                processType: "Manual Loading"
+                processType: "Loading Material"
             },
             {
-                id: 2, name: "Pre-wash Chamber", position: [-35, 0, 0], duration: 8,
+                id: 2,
+                name: "Jet Spray",
+                position: [-35, 0, 0],
+                duration: 8,
                 equipment: ["enclosed_chamber", "spray_nozzles", "drain_system", "safety_doors", "water_collection"],
                 colors: { primary: 0x00BCD4, secondary: 0x4DD0E1 },
-                processType: "Water Spray Cleaning"
+                processType: "Jet Spray"
             },
             {
-                id: 3, name: "Robot Pick Station", position: [-20, 0, 0], duration: 7,
+                id: 3,
+                name: "Robot",
+                position: [-20, 0, 0],
+                duration: 7,
                 equipment: ["6_axis_robot", "gripper_assembly", "safety_cage", "control_pendant", "vision_system"],
                 colors: { primary: 0xFF9800, secondary: 0xFFB74D },
-                processType: "Robotic Handling"
+                processType: "Robot"
             },
             {
-                id: 4, name: "Bundle Fixture", position: [-10, 0, 0], duration: 2,
+                id: 4,
+                name: "Material Setup",
+                position: [-10, 0, 0],
+                duration: 2,
                 equipment: ["pneumatic_clamps", "proximity_sensors", "air_cylinders", "pressure_gauges"],
                 colors: { primary: 0x9C27B0, secondary: 0xBA68C8 },
-                processType: "Pneumatic Clamping"
+                processType: "Material Setup"
             },
             {
-                id: 5, name: "Chemical Wash", position: [0, 0, 0], duration: 8,
-                equipment: ["wash_chamber", "chemical_tanks", "spray_manifolds", "filtration_system", "neutralization"],
-                colors: { primary: 0x3F51B5, secondary: 0x7986CB },
-                processType: "Chemical Treatment"
-            },
-            {
-                id: 6, name: "Primary Drying", position: [15, 0, 0], duration: 7,
+                id: 5,
+                name: "Primary Drying",
+                position: [0, 0, 0],
+                duration: 8,
                 equipment: ["air_knives", "blower_units", "heating_elements", "air_ducts", "temperature_sensors"],
                 colors: { primary: 0xFF5722, secondary: 0xFF8A65 },
-                processType: "High-Velocity Air Drying"
+                processType: "Primary Drying"
             },
             {
-                id: 7, name: "Moisture Check", position: [25, 0, 0], duration: 3,
+                id: 6,
+                name: "Moisture Checking",
+                position: [15, 0, 0],
+                duration: 3,
                 equipment: ["sensor_array", "digital_display", "scanning_mechanism", "pass_fail_lights"],
                 colors: { primary: 0x795548, secondary: 0xA1887F },
-                processType: "Moisture Detection"
+                processType: "Moisture Checking"
             },
             {
-                id: 8, name: "Conditioning Spray", position: [35, 0, 0], duration: 3,
+                id: 7,
+                name: "Oil Spray",
+                position: [25, 0, 0],
+                duration: 3,
                 equipment: ["mist_nozzles", "mixing_chamber", "metering_pumps", "oil_tank", "water_tank"],
                 colors: { primary: 0xE91E63, secondary: 0xF06292 },
-                processType: "Oil/Water Mist Application"
+                processType: "Oil Spray"
             },
             {
-                id: 9, name: "Secondary Drying", position: [45, 0, 0], duration: 5,
+                id: 8,
+                name: "Secondary Drying",
+                position: [35, 0, 0],
+                duration: 5,
                 equipment: ["ir_panels", "insulated_chamber", "temperature_controls", "low_temp_heaters"],
                 colors: { primary: 0xFF6F00, secondary: 0xFFB74D },
-                processType: "IR Heating"
+                processType: "Secondary Drying"
             },
             {
-                id: 10, name: "Output Collection", position: [55, 0, 0], duration: 4,
+                id: 9,
+                name: "Moisture Checking",
+                position: [45, 0, 0],
+                duration: 3,
+                equipment: ["sensor_array", "digital_display", "scanning_mechanism", "pass_fail_lights"],
+                colors: { primary: 0x795548, secondary: 0xA1887F },
+                processType: "Moisture Checking"
+            },
+            {
+                id: 10,
+                name: "Output",
+                position: [55, 0, 0],
+                duration: 4,
                 equipment: ["unload_robot", "output_trays", "vision_system", "storage_area", "quality_scanner"],
                 colors: { primary: 0x607D8B, secondary: 0x90A4AE },
-                processType: "Automated Unloading"
+                processType: "Output"
             }
         ];
         
