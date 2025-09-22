@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Industrial Tray Cleaning System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Main 3D Canvas -->
+        <div id="canvas-container">
+            <canvas id="simulation-canvas"></canvas>
+            
+            <!-- Component Labels -->
+            <div id="component-labels"></div>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <div class="control-panel__header">
+                <h2>Industrial Tray Cleaning System</h2>
+                <div class="status-indicator">
+                    <span class="status-dot" id="system-status"></span>
+                    <span id="system-status-text">System Ready</span>
+                </div>
+            </div>
+
+            <div class="control-panel__body">
+                <!-- Simulation Controls -->
+                <div class="control-group">
+                    <h3>Simulation Controls</h3>
+                    <div class="button-group">
+                        <button id="start-btn" class="btn btn--primary">
+                            <span>▶</span> Start Simulation
+                        </button>
+                        <button id="reset-btn" class="btn btn--secondary">Reset</button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="speed-slider" class="form-label">Speed Control</label>
+                        <input type="range" id="speed-slider" class="speed-slider" min="0.5" max="3" step="0.1" value="1">
+                        <span id="speed-value">1.0x</span>
+                    </div>
+                </div>
+
+                <!-- Process Status -->
+                <div class="control-group">
+                    <h3>Process Status</h3>
+                    <div class="process-steps" id="process-steps">
+                        <div class="process-step" data-step="0">
+                            <span class="step-indicator"></span>
+                            <span>Loading</span>
+                        </div>
+                        <div class="process-step" data-step="1">
+                            <span class="step-indicator"></span>
+                            <span>Cleaning</span>
+                        </div>
+                        <div class="process-step" data-step="2">
+                            <span class="step-indicator"></span>
+                            <span>Transport</span>
+                        </div>
+                        <div class="process-step" data-step="3">
+                            <span class="step-indicator"></span>
+                            <span>Oiling</span>
+                        </div>
+                        <div class="process-step" data-step="4">
+                            <span class="step-indicator"></span>
+                            <span>Drying</span>
+                        </div>
+                        <div class="process-step" data-step="5">
+                            <span class="step-indicator"></span>
+                            <span>Output</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Component Details -->
+                <div class="control-group">
+                    <h3>Component Details</h3>
+                    <div id="component-details" class="component-details">
+                        Click on components to view details
+                    </div>
+                </div>
+
+                <!-- Camera Controls -->
+                <div class="control-group">
+                    <h3>Camera Controls</h3>
+                    <div class="camera-controls">
+                        <p><strong>Left Click + Drag:</strong> Rotate</p>
+                        <p><strong>Right Click + Drag:</strong> Pan</p>
+                        <p><strong>Mouse Wheel:</strong> Zoom</p>
+                        <button id="reset-camera" class="btn btn--outline">Reset View</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="loading-screen">
+            <div class="loading-content">
+                <div class="loading-spinner"></div>
+                <h2>Initializing 3D System</h2>
+                <p id="loading-status">Loading Three.js...</p>
+            </div>
+        </div>
+
+        <!-- Error Screen -->
+        <div id="error-screen" class="error-screen hidden">
+            <div class="error-content">
+                <h2>⚠ System Error</h2>
+                <p id="error-message">WebGL not supported</p>
+                <button id="retry-btn" class="btn btn--primary">Retry</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Three.js Libraries - Using reliable CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.140.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.140.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
